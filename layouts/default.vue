@@ -29,7 +29,7 @@
           <!-- / nav -->
           <ul class="h-r-login">
             <li id="no-login">
-              <a href="javascript:lrFun(1)" title="登录">
+              <a href="/login" title="登录">
                 <em class="icon18 login-icon">&nbsp;</em>
                 <span class="vam ml5">登录</span>
               </a>
@@ -147,6 +147,7 @@ import "~/assets/css/reset.css";
 import "~/assets/css/theme.css";
 import "~/assets/css/global.css";
 import "~/assets/css/web.css";
+
 
 export default {};
 </script>
