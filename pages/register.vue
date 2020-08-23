@@ -7,46 +7,34 @@
     </div>
 
     <div class="sign-up-container">
-      <el-form ref="userForm" :model="params">
-        <el-form-item
-          class="input-prepend restyle"
-          prop="nickname"
-        >
+      <el-form ref="userForm" :model="member" :rules="rules">
+        <el-form-item class="input-prepend restyle" prop="nickname">
           <div>
             <el-input
               type="text"
               placeholder="你的昵称"
-              v-model="params.nickname"
+              v-model="member.nickname"
             />
             <i class="iconfont icon-user" />
           </div>
         </el-form-item>
 
-        <el-form-item
-          class="input-prepend restyle no-radius"
-          prop="mobile"
-        >
+        <el-form-item class="input-prepend restyle no-radius" prop="mobile">
           <div>
             <el-input
               type="text"
               placeholder="手机号"
-              v-model="params.mobile"
+              v-model="member.mobile"
             />
             <i class="iconfont icon-phone" />
           </div>
         </el-form-item>
 
-        <el-form-item
-          class="input-prepend restyle no-radius"
-          prop="code"
-          :rules="[
-            { required: true, message: '请输入验证码', trigger: 'blur' }
-          ]"
-        >
+        <el-form-item class="input-prepend restyle no-radius" prop="code">
           <div
             style="width: 100%;display: block;float: left;position: relative"
           >
-            <el-input type="text" placeholder="验证码" v-model="params.code" />
+            <el-input type="text" placeholder="验证码" v-model="member.code" />
             <i class="iconfont icon-phone" />
           </div>
           <div
@@ -54,6 +42,7 @@
             style="position:absolute;right: 0;top: 6px;width: 40%;"
           >
             <a
+              @click="isClicke && getCode()"
               href="javascript:"
               type="button"
               style="border: none;background-color: none"
@@ -62,16 +51,12 @@
           </div>
         </el-form-item>
 
-        <el-form-item
-          class="input-prepend"
-          prop="password"
-          :rules="[{ required: true, message: '请输入密码', trigger: 'blur' }]"
-        >
+        <el-form-item class="input-prepend" prop="password">
           <div>
             <el-input
               type="password"
               placeholder="设置密码"
-              v-model="params.password"
+              v-model="member.password"
             />
             <i class="iconfont icon-password" />
           </div>
@@ -122,16 +107,88 @@
 <script>
 import "~/assets/css/sign.css";
 import "~/assets/css/iconfont.css";
+import userApi from "@/api/user";
 export default {
   layout: "sign",
   data() {
+    //校验手机号
+    var validatePhone = (rule, value, callback) => {
+      if (!/^1[34578]\d{9}$/.test(value)) {
+        return callback(new Error("手机号码格式不正确"));
+      }
+      return callback();
+    };
     return {
-      params: {},
-      codeTest: ''
+      member: {
+        nickname: "",
+        mobile: "",
+        code: "",
+        password: ""
+      },
+      codeTest: "获取验证码",
+      //防止多次获取验证码
+      isClicke: true,
+      //检验规则
+      rules: {
+        nickname: [{ required: true, message: "请输入昵称", trigger: "blur" }],
+        mobile: [
+          {
+            required: true,
+            message: "手机号不能为空",
+            trigger: "blur"
+          },
+          { validator: validatePhone, trigger: "blur" }
+        ],
+        password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+        code: [{ required: true, message: "请输入验证码", trigger: "blur" }]
+      }
     };
   },
   created() {},
-  methods: {}
+  methods: {
+    submitRegister() {
+      if (this.member.mobile === "") {
+        this.$message.error("请输入手机号");
+      } else if (this.member.nickname === "") {
+        this.$message.error("请输入昵称");
+      } else if (this.member.code === "") {
+        this.$message.error("请输入验证码");
+      } else if (this.member.password === "") {
+        this.$message.error("请输入密码");
+      } else {
+        this.member.password = this.$md5(this.member.password);
+        userApi.register(this.member).then(response => {
+          this.$message({
+            type: "success",
+            message: "注册成功"
+          });
+        });
+        this.$router.push("/login");
+      }
+    },
+    getCode() {
+      if (this.member.mobile === "") {
+        this.$message.error("请输入手机号");
+      } else {
+        userApi.getPhoneCode(this.member.mobile).then(response => {
+          this.countDown();
+        });
+      }
+    },
+    countDown() {
+      this.isClicke = false;
+      let time = 300;
+      const intervalId = setInterval(() => {
+        if (time === 1) {
+          clearInterval(intervalId);
+          this.codeTest = "重新获取验证码";
+          this.isClicke = true;
+        } else {
+          this.codeTest = `重新获取剩余${--time}秒`;
+        }
+      }, 1000);
+    }
+  }
 };
 </script>
 <style>
