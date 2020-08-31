@@ -43,8 +43,7 @@
             <a
               id="weixin"
               class="weixin"
-              target="_blank"
-              href="http://localhost:9001/api/ucenter/wx/login"
+              href="http://localhost:8080/api/ucenter/wx/qr"
               ><i class="iconfont icon-weixin"
             /></a>
           </li>
@@ -62,6 +61,7 @@
 import "~/assets/css/sign.css";
 import "~/assets/css/iconfont.css";
 import userApi from "@/api/user";
+
 export default {
   layout: "sign",
   data() {
@@ -96,7 +96,9 @@ export default {
       }
     };
   },
-  created() {},
+  created() {
+    
+  },
   methods: {
     submitLogin() {
       if (this.user.mobile === "" || this.user.password === "") {
@@ -104,9 +106,11 @@ export default {
       } else {
         userApi.login(this.user).then(response => {
           this.$message({
-            type: 'success',
+            type: "success",
             message: "登录成功！"
           });
+          this.$cookie.set("token", response.data, { domain: "localhost" });
+          this.$router.push("/");
         });
       }
     }

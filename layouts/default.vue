@@ -28,7 +28,7 @@
           </ul>
           <!-- / nav -->
           <ul class="h-r-login">
-            <li id="no-login">
+            <li id="no-login" v-if="!userInfo">
               <a href="/login" title="登录">
                 <em class="icon18 login-icon">&nbsp;</em>
                 <span class="vam ml5">登录</span>
@@ -38,27 +38,34 @@
                 <span class="vam ml5">注册</span>
               </a>
             </li>
-            <li class="mr10 undis" id="is-login-one">
+            <li class="mr10" id="is-login-one" v-if="userInfo">
               <a href="#" title="消息" id="headerMsgCountId">
                 <em class="icon18 news-icon">&nbsp;</em>
               </a>
               <q class="red-point" style="display: none">&nbsp;</q>
             </li>
-            <li class="h-r-user undis" id="is-login-two">
+            <li class="h-r-user" id="is-login-two" v-if="userInfo">
               <a href="#" title>
                 <img
-                  src="~/assets/img/avatar-boy.gif"
+                  :src="
+                    userInfo.avatar === null || userInfo.avatar === ''
+                      ? 'nuxt/assets/img/avatar-boy.gif'
+                      : userInfo.avatar
+                  "
                   width="30"
                   height="30"
                   class="vam picImg"
                   alt
                 />
-                <span class="vam disIb" id="userName"></span>
+
+                <span class="vam disIb" id="userName">
+                  {{ userInfo.nickname }}
+                </span>
               </a>
               <a
                 href="javascript:void(0)"
                 title="退出"
-                onclick="exit();"
+                @click="exit()"
                 class="ml5"
                 >退出</a
               >
@@ -147,7 +154,40 @@ import "~/assets/css/reset.css";
 import "~/assets/css/theme.css";
 import "~/assets/css/global.css";
 import "~/assets/css/web.css";
+import userApi from "@/api/user";
+import cookie from "js-cookie";
 
-
-export default {};
+export default {
+  data() {
+    return {
+      userInfo: {
+        id: ""
+      }
+    };
+  },
+  created() {
+    if (this.$route.query.token) {
+      this.wxLogin(this.$route.query.token);
+    }
+    this.getUser();
+  },
+  methods: {
+    wxLogin(token) {
+      cookie.set("token", token, { domain: "localhost" });
+    },
+    exit() {
+      this.$cookie.remove("userInfo", { domain: "localhost" });
+      this.$cookie.remove("token", { domain: "localhost" });
+      //回到首页面
+      window.location.href = "/";
+    },
+    getUser() {
+      userApi.getUserInfo().then(response => {
+        this.userInfo = response.data;
+        this.$cookie.set("userInfo", this.userInfo, { domain: "localhost" });
+        console.log(this.userInfo.avatar === null);
+      });
+    }
+  }
+};
 </script>
