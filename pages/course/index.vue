@@ -18,23 +18,8 @@
                 <li>
                   <a title="全部" href="#">全部</a>
                 </li>
-                <li>
-                  <a title="数据库" href="#">数据库</a>
-                </li>
-                <li class="current">
-                  <a title="外语考试" href="#">外语考试</a>
-                </li>
-                <li>
-                  <a title="教师资格证" href="#">教师资格证</a>
-                </li>
-                <li>
-                  <a title="公务员" href="#">公务员</a>
-                </li>
-                <li>
-                  <a title="移动开发" href="#">移动开发</a>
-                </li>
-                <li>
-                  <a title="操作系统" href="#">操作系统</a>
+                <li :class="index===clickIndex?'current':''" v-for="(subject,index) in subjects" :key="index">
+                  <a @click="isCurrent(index)" :title="subject.title" href="#"> {{subject.title}} </a>
                 </li>
               </ul>
             </dd>
@@ -47,12 +32,6 @@
               <ul class="clearfix">
                 <li>
                   <a title="职称英语" href="#">职称英语</a>
-                </li>
-                <li>
-                  <a title="英语四级" href="#">英语四级</a>
-                </li>
-                <li>
-                  <a title="英语六级" href="#">英语六级</a>
                 </li>
               </ul>
             </dd>
@@ -142,8 +121,28 @@
   </div>
 </template>
 <script>
-// import course from "@/api/course"
+import courseApi from "@/api/course"
 export default {
+  data() {
+    return {
+      subjects: [],
+      subSubject: [],
+      clickIndex: -1,
+    }
+  },
+  created() {
+    this.listSubject()
+  },
+  methods: {
+    isCurrent(index) {
+      this.clickIndex = index      
+    },
+    listSubject() {
+      courseApi.listSubjectCategory().then(response => {
+        this.subjects = response.data
+      })
+    }
+  }
   
 //   asyncData({ params, error }) {
 //     return course.getPageList(1, 8).then(response => {
