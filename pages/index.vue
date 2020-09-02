@@ -177,7 +177,7 @@ export default {
     },
     //列出热门课程
     listHotCourse() {
-      courseApi.listCourse(1, 10).then(response => {
+      courseApi.listCourse(1, 10, {}).then(response => {
         this.hotCourseList = response.data.items;
       });
     },

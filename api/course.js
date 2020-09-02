@@ -7,10 +7,11 @@ export default {
       method: 'get'
     })
   },
-  listCourse(page, row) {
+  listCourse(page, row, courseQueryDto) {
     return request({
       url: `/edu-service/edu-course/${page}/${row}`,
-      method: "post"
+      method: "post",
+      data: courseQueryDto
     });
   }
 };
