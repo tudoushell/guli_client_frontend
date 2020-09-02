@@ -208,18 +208,21 @@ export default {
   methods: {
     gotoPage(page) {
       courseApi.listCourse(page, 8).then(response => {
-        this.courseList = response.data.items;
+        this.coursePagination(response);
       });
     },
     //列出课程
     listCourse() {
       courseApi.listCourse(1, 8, this.courseQueryDto).then(response => {
-        this.courseList = response.data.items;
-        this.hasPrevious = response.data.hasPrevious
-        this.current = response.data.current
-        let pages = Math.floor(response.data.total / 8)
-        this.pages = pages === 0 ? 1:pages
+        this.coursePagination(response);
       });
+    },
+    coursePagination(response) {
+      this.courseList = response.data.items;
+      this.hasPrevious = response.data.hasPrevious;
+      this.current = response.data.current;
+      let pages = Math.floor(response.data.total / 8);
+      this.pages = pages === 0 ? 1 : pages;
     },
     //选择sub课程，添加样式
     chooseSubSuject(index) {
