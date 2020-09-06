@@ -46,7 +46,7 @@
                   :key="index"
                 >
                   <a
-                    @click="chooseSubSuject(index)"
+                    @click="chooseSubSuject(index, subSubject.id)"
                     :title="subSubject.title"
                     href="#"
                   >
@@ -67,16 +67,40 @@
           </section>
           <section class="fl">
             <ol class="js-tap clearfix">
-              <li>
-                <a title="关注度" href="#">关注度</a>
+              <li
+                :class="{
+                  'current bg-orange': courseQueryDto.orderByViewCount === true
+                }"
+              >
+                <a title="关注度" href="#" @click="searchBuyCount"
+                  >关注度&nbsp;<span
+                    :class="{ hidden: courseQueryDto.orderByViewCount != true }"
+                    >↓</span
+                  ></a
+                >
               </li>
-              <li>
-                <a title="最新" href="#">最新</a>
+              <li
+                :class="{
+                  'current bg-orange': courseQueryDto.orderByGmtCreate === true
+                }"
+              >
+                <a title="最新" href="#" @click="searchByCreated"
+                  >最新&nbsp;<span
+                    :class="{ hidden: courseQueryDto.orderByGmtCreate != true }"
+                    >↓</span
+                  ></a
+                >
               </li>
-              <li class="current bg-orange">
-                <a title="价格" href="#"
+              <li
+                :class="{
+                  'current bg-orange': courseQueryDto.orderByPrice === true
+                }"
+              >
+                <a title="价格" href="#" @click="searchByPrice"
                   >价格&nbsp;
-                  <span>↓</span>
+                  <span :class="{ hidden: courseQueryDto.orderByPrice != true }"
+                    >↓</span
+                  >
                 </a>
               </li>
             </ol>
@@ -102,7 +126,12 @@
                       alt="听力口语"
                     />
                     <div class="cc-mask">
-                      <a title="开始学习" class="comm-btn c-btn-1">开始学习</a>
+                      <a
+                        :href="'/course/' + course.id"
+                        title="开始学习"
+                        class="comm-btn c-btn-1"
+                        >开始学习</a
+                      >
                     </div>
                   </section>
                   <h3 class="hLh30 txtOf mt10">
@@ -195,10 +224,15 @@ export default {
       isAllStyle: false,
       subIndex: -1,
       courseList: [],
-      courseQueryDto: {},
+      courseQueryDto: {
+        orderByGmtCreate: false,
+        orderByViewCount: false,
+        orderByPrice: false
+      },
       hasPrevious: true,
       current: 1,
-      pages: 1
+      pages: 1,
+      hasNext: true
     };
   },
   created() {
@@ -206,6 +240,25 @@ export default {
     this.listCourse();
   },
   methods: {
+    searchByPrice() {
+      this.courseQueryDto.orderByPrice = true;
+      this.courseQueryDto.orderByGmtCreate = false;
+      this.courseQueryDto.orderByViewCount = false;
+      this.listCourse();
+    },
+    searchByCreated() {
+      this.courseQueryDto.orderByGmtCreate = true;
+      this.courseQueryDto.orderByViewCount = false;
+      this.courseQueryDto.orderByPrice = false;
+      this.listCourse();
+    },
+    searchBuyCount() {
+      this.courseQueryDto.orderByViewCount = true;
+      this.courseQueryDto.orderByGmtCreate = false;
+      this.courseQueryDto.orderByPrice = false;
+      this.listCourse();
+    },
+    //分页查询
     gotoPage(page) {
       courseApi.listCourse(page, 8).then(response => {
         this.coursePagination(response);
@@ -223,15 +276,23 @@ export default {
       this.current = response.data.current;
       let pages = Math.floor(response.data.total / 8);
       this.pages = pages === 0 ? 1 : pages;
+      this.hasNext = response.data.hasNext;
     },
-    //选择sub课程，添加样式
-    chooseSubSuject(index) {
+    //选择sub课程，添加样式,同时查询
+    chooseSubSuject(index, subSubjectId) {
       this.subIndex = index;
+      this.courseQueryDto.subjectId = subSubjectId;
+      this.courseQueryDto.orderByViewCount = false;
+      this.courseQueryDto.orderByGmtCreate = false;
+      this.courseQueryDto.orderByPrice = false;
+      //查询
+      this.listCourse();
     },
     //列出全部课程分类
     isAllSubject() {
       this.subSubjects = [];
       this.clickIndex = -1;
+      this.subIndex = -1;
       this.isAllStyle = true;
       let i = 0;
       this.subjects.forEach(subject => {
@@ -239,9 +300,16 @@ export default {
           this.subSubjects[i++] = subSubject;
         });
       });
+      //分页查询所有课程
+      this.listCourse();
     },
-    //列出当前点击的课程
+    //点击主课程，同时列出子课程
     isCurrent(index, subjectId) {
+      this.courseQueryDto = {
+        orderByGmtCreate: false,
+        orderByViewCount: false,
+        orderByPrice: false
+      };
       this.subIndex = -1;
       this.isAllStyle = false;
       this.clickIndex = index;
@@ -250,6 +318,8 @@ export default {
           this.subSubjects = subject.children;
         }
       });
+      this.courseQueryDto.subjectParentId = subjectId;
+      this.listCourse();
     },
     //列出课程分类
     listSubject() {
@@ -274,3 +344,8 @@ export default {
   //   }
 };
 </script>
+<style scoped>
+.hidden {
+  display: none;
+}
+</style>

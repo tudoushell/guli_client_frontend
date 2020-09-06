@@ -185,7 +185,6 @@ export default {
       userApi.getUserInfo().then(response => {
         this.userInfo = response.data;
         this.$cookie.set("userInfo", this.userInfo, { domain: "localhost" });
-        console.log(this.userInfo.avatar === null);
       });
     }
   }

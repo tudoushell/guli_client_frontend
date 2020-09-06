@@ -185,7 +185,6 @@ export default {
     listBanners() {
       indexApi.listBanner().then(response => {
         this.bannerList = response.data;
-        console.log(this.bannerList);
       });
     }
   }

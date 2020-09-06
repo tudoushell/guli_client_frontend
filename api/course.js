@@ -1,6 +1,12 @@
 import request from "@/utils/request";
 
 export default {
+  getCourseInfo(id) {
+    return request({
+      url: `/edu-service/edu-course/detail/${id}`,
+      method: 'get'
+    })
+  },
   listSubjectCategory() {
     return request({
       url: '/edu-service/edu-subject',
