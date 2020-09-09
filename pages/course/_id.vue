@@ -11,7 +11,7 @@
       </section>
       <div>
         <article class="c-v-pic-wrap" style="height: 357px;">
-          <section class="p-h-video-box" id="videoPlay">
+          <section class="p-h-video-box" style="height:100%" id="videoPlay">
             <img
               :src="course.cover"
               :alt="course.title"
@@ -41,8 +41,11 @@
                 <a class="c-fff vam" title="收藏" href="#">收藏</a>
               </span>
             </section>
-            <section class="c-attr-mt">
+            <section v-if="Number(course.price) === 0"  class="c-attr-mt">
               <a href="#" title="立即观看" class="comm-btn c-btn-3">立即观看</a>
+            </section>
+             <section  v-else class="c-attr-mt">
+              <a @click="createOrders()" href="#" title="立即购买" class="comm-btn c-btn-3">立即购买</a>
             </section>
           </section>
         </aside>
@@ -192,6 +195,8 @@
 
 <script>
 import courseApi from "@/api/course";
+import orderApi from "@/api/order"
+
 export default {
   data() {
     return {
@@ -205,6 +210,13 @@ export default {
     }
   },
   methods: {
+    //创建订单
+    createOrders() {
+      orderApi.createdOrder(this.course.id).then(response => {
+        let orderNo = response.data
+        this.$router.push(`/order/${orderNo}`);
+      })
+    },
     getCourseInfo(id) {
       courseApi.getCourseInfo(id).then(response => {
         this.course = response.data;
