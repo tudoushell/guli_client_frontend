@@ -103,7 +103,8 @@ import orderApi from "@/api/order";
 export default {
   data() {
     return {
-      order: {}
+      order: {},
+      orderNo: ""
     };
   },
   created() {
@@ -112,7 +113,11 @@ export default {
     }
   },
   methods: {
+    toPay() {
+      this.$router.push(`/pay/${this.orderNo}`);
+    },
     getOrderInfo(orderNo) {
+      this.orderNo = orderNo;
       orderApi.getOrderByOrderNo(orderNo).then(response => {
         this.order = response.data;
       });
