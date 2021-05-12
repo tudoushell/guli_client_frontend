@@ -18,7 +18,7 @@
     "js-cookie": "^2.2.1",
     "js-md5": "^0.7.3",
     "nuxt": "^2.0.0",
-    "swiper": "^5.4.5",
+    "swiper": "^6.5.1",
     "vue-awesome-swiper": "^4.1.1",
     "vue-qriously": "^1.1.1"
   },
